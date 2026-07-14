@@ -25,3 +25,6 @@ replay_pid*
 /UASWebService/nbproject/private/
 /ServerTCP/nbproject/private/
 /ClientTCP/nbproject/private/
+/ServerTCP/build/
+/UASWebService/build/
+/ClientTCP/build/

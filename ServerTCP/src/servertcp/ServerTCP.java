@@ -1,20 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package servertcp;
 
-/**
- *
- * @author Ian
- */
-public class ServerTCP {
+import javax.swing.SwingUtilities;
 
-    /**
-     * @param args the command line arguments
-     */
+// Main class biasa (Java Class) - cuma buka jendela FormServer.
+public class ServerTCP {
     public static void main(String[] args) {
-        // TODO code application logic here
+        SwingUtilities.invokeLater(() -> new FormServer().setVisible(true));
     }
-    
 }
