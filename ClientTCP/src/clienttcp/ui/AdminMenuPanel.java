@@ -94,7 +94,7 @@ public class AdminMenuPanel extends javax.swing.JPanel {
 
         lbl1.setText("nama menu");
 
-        lbl2.setText("Food");
+        lbl2.setText("Kategori");
 
         lbl3.setText("harga");
 
@@ -204,9 +204,8 @@ public class AdminMenuPanel extends javax.swing.JPanel {
                         .addComponent(txtCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lbl3)
-                        .addComponent(btnDelete))
+                    .addComponent(lbl3)
+                    .addComponent(btnDelete)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(3, 3, 3)
                         .addComponent(txtPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
