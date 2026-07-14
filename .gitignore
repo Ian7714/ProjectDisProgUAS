@@ -28,3 +28,5 @@ replay_pid*
 /ServerTCP/build/
 /UASWebService/build/
 /ClientTCP/build/
+/ClientTCP/dist/
+/UASWebService/dist/

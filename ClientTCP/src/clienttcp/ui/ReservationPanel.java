@@ -4,6 +4,10 @@
  */
 package clienttcp.ui;
 
+import clienttcp.net.TCPClient;
+import clienttcp.wsclient.User;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author raiha
@@ -13,8 +17,72 @@ public class ReservationPanel extends javax.swing.JPanel {
     /**
      * Creates new form ReservationPanel
      */
+    User currentUser;
+    TCPClient tcp;
+    DefaultTableModel tableModel;
+    DefaultTableModel reservationModel;
+
     public ReservationPanel() {
         initComponents();
+    }
+
+    public ReservationPanel(User currentUser, TCPClient tcp) {
+        this();
+        this.currentUser = currentUser;
+        this.tcp = tcp;
+
+        tableModel = new javax.swing.table.DefaultTableModel(
+                new Object[]{"ID", "No. Meja", "Kapasitas", "Status"}, 0);
+        tableTables.setModel(tableModel);
+
+        reservationModel = new javax.swing.table.DefaultTableModel(
+                new Object[]{"ID", "Meja ID", "Tanggal", "Jam", "Tamu", "Status"}, 0);
+        tableMyReservations.setModel(reservationModel);
+
+        txtDate.setText(java.time.LocalDate.now().toString());
+        txtTime.setText(java.time.LocalTime.now().withSecond(0).withNano(0).toString());
+        txtGuest.setText("2");
+
+        refreshTables();
+        refreshMyReservations();
+    }
+
+    private void refreshTables() {
+        try {
+            String resp = tcp.sendCommand("LIST_TABLES");
+            tableModel.setRowCount(0);
+            if (resp != null && resp.startsWith("OK")) {
+                String[] parts = resp.split("\\|");
+                for (int i = 1; i < parts.length; i++) {
+                    clienttcp.model.RestaurantTable t = clienttcp.model.RestaurantTable.parse(parts[i]);
+                    tableModel.addRow(new Object[]{t.id, t.tableNumber, t.capacity, t.status});
+                }
+            }
+        } catch (Exception ex) {
+            showError(ex);
+        }
+    }
+
+    private void refreshMyReservations() {
+        try {
+            String resp = tcp.sendCommand("LIST_MY_RESERVATIONS|" + currentUser.getId());
+            reservationModel.setRowCount(0);
+            if (resp != null && resp.startsWith("OK")) {
+                String[] parts = resp.split("\\|");
+                for (int i = 1; i < parts.length; i++) {
+                    clienttcp.model.Reservation r = clienttcp.model.Reservation.parse(parts[i]);
+                    reservationModel.addRow(new Object[]{r.id, r.tableId, r.date, r.time, r.guestCount, r.status});
+                }
+            }
+        } catch (Exception ex) {
+            showError(ex);
+        }
+    }
+
+    private void showError(Exception ex) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+                "Gagal terhubung ke Server TCP.\nPastikan ServerTCP sudah dijalankan.\n" + ex.getMessage(),
+                "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
     }
 
     /**
@@ -26,19 +94,228 @@ public class ReservationPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
+        txtDate = new javax.swing.JTextField();
+        txtTime = new javax.swing.JTextField();
+        txtGuest = new javax.swing.JTextField();
+        btnReserve = new javax.swing.JButton();
+        btnRefreshTables = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tableTables = new javax.swing.JTable();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tableMyReservations = new javax.swing.JTable();
+        btnCancel = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
+
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane2.setViewportView(jTable2);
+
+        txtDate.setText("Tanggal");
+
+        txtTime.setText("Jam");
+        txtTime.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTimeActionPerformed(evt);
+            }
+        });
+
+        txtGuest.setText("Guest");
+
+        btnReserve.setText("Reservasi");
+        btnReserve.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReserveActionPerformed(evt);
+            }
+        });
+
+        btnRefreshTables.setText("Refresh");
+        btnRefreshTables.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefreshTablesActionPerformed(evt);
+            }
+        });
+
+        tableTables.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane3.setViewportView(tableTables);
+
+        tableMyReservations.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane4.setViewportView(tableMyReservations);
+
+        btnCancel.setText("Cancel");
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("My Reservation");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(txtDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtGuest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnRefreshTables)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCancel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnReserve)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtGuest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnRefreshTables)
+                    .addComponent(btnCancel)
+                    .addComponent(btnReserve))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void txtTimeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTimeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtTimeActionPerformed
+
+    private void btnReserveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReserveActionPerformed
+        String date = txtDate.getText().trim();
+        String time = txtTime.getText().trim();
+        String guestStr = txtGuest.getText().trim();
+
+        if (date.isEmpty() || time.isEmpty() || guestStr.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Semua field wajib diisi");
+            return;
+        }
+
+        try {
+            String cmd = "CREATE_RESERVATION|" + currentUser.getId() + "|" + date + "|" + time + "|" + guestStr;
+            String resp = tcp.sendCommand(cmd);
+            if (resp != null && resp.startsWith("OK")) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Reservasi berhasil dibuat!");
+                refreshTables();
+                refreshMyReservations();
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Gagal: " + resp, "Reservasi Gagal",
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception ex) {
+            showError(ex);
+        }
+    }//GEN-LAST:event_btnReserveActionPerformed
+
+    private void btnRefreshTablesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshTablesActionPerformed
+        refreshTables();
+    }//GEN-LAST:event_btnRefreshTablesActionPerformed
+
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        int row = tableMyReservations.getSelectedRow();
+        if (row == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Pilih reservasi yang ingin dibatalkan");
+            return;
+        }
+        int reservationId = (int) reservationModel.getValueAt(row, 0);
+        try {
+            String resp = tcp.sendCommand("CANCEL_RESERVATION|" + reservationId);
+            if (resp != null && resp.startsWith("OK")) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Reservasi dibatalkan");
+                refreshTables();
+                refreshMyReservations();
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Gagal: " + resp, "Error",
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception ex) {
+            showError(ex);
+        }
+    }//GEN-LAST:event_btnCancelActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCancel;
+    private javax.swing.JButton btnRefreshTables;
+    private javax.swing.JButton btnReserve;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable2;
+    private javax.swing.JTable tableMyReservations;
+    private javax.swing.JTable tableTables;
+    private javax.swing.JTextField txtDate;
+    private javax.swing.JTextField txtGuest;
+    private javax.swing.JTextField txtTime;
     // End of variables declaration//GEN-END:variables
 }

@@ -76,8 +76,8 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="txtUsername1" alignment="0" max="32767" attributes="0"/>
-                          <Component id="txtPassword1" alignment="0" max="32767" attributes="0"/>
+                          <Component id="txtUsername1" max="32767" attributes="0"/>
+                          <Component id="txtPassword1" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" attributes="0">
@@ -100,7 +100,7 @@
               <EmptySpace max="32767" attributes="0"/>
           </Group>
           <Group type="102" alignment="1" attributes="0">
-              <EmptySpace pref="131" max="32767" attributes="0"/>
+              <EmptySpace pref="134" max="32767" attributes="0"/>
               <Component id="btnSubmit" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="114" max="-2" attributes="0"/>
           </Group>
@@ -156,31 +156,17 @@
     </Component>
     <Component class="javax.swing.JButton" name="btnSubmit">
       <Properties>
-        <Property name="text" type="java.lang.String" value="jButton1"/>
+        <Property name="text" type="java.lang.String" value="Register"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSubmitActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="txtUsername1">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="jTextField1"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JTextField" name="txtPassword1">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="jTextField1"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txtEmail">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="jTextField1"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txtFullName">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="jTextField1"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
@@ -191,6 +177,8 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Email:"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JPasswordField" name="txtPassword1">
     </Component>
   </SubComponents>
 </Form>

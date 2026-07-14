@@ -39,11 +39,11 @@ public class RegisterFrame extends javax.swing.JDialog {
         jLabel6 = new javax.swing.JLabel();
         btnSubmit = new javax.swing.JButton();
         txtUsername1 = new javax.swing.JTextField();
-        txtPassword1 = new javax.swing.JTextField();
         txtEmail = new javax.swing.JTextField();
         txtFullName = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        txtPassword1 = new javax.swing.JPasswordField();
 
         jLabel1.setText("Password:");
 
@@ -77,20 +77,12 @@ public class RegisterFrame extends javax.swing.JDialog {
 
         jLabel6.setText("Username:");
 
-        btnSubmit.setText("jButton1");
+        btnSubmit.setText("Register");
         btnSubmit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSubmitActionPerformed(evt);
             }
         });
-
-        txtUsername1.setText("jTextField1");
-
-        txtPassword1.setText("jTextField1");
-
-        txtEmail.setText("jTextField1");
-
-        txtFullName.setText("jTextField1");
 
         jLabel7.setText("Full Name:");
 
@@ -125,7 +117,7 @@ public class RegisterFrame extends javax.swing.JDialog {
                 .addComponent(jLabel5)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(131, Short.MAX_VALUE)
+                .addContainerGap(134, Short.MAX_VALUE)
                 .addComponent(btnSubmit)
                 .addGap(114, 114, 114))
         );
@@ -159,15 +151,13 @@ public class RegisterFrame extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
-        // TODO add your handling code here:
-        RegisterFrame rf = new RegisterFrame(this, true);
-        rf.setVisible(true);
+        
     }//GEN-LAST:event_btnRegisterActionPerformed
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
-        String username = txtUsername.getText().trim();
-        String password = new String(txtPassword.getPassword());
+        String username = txtUsername1.getText().trim();
+        String password = new String(txtPassword1.getPassword());
 
         if (username.isEmpty() || password.isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(this, "Username dan password wajib diisi");
@@ -196,8 +186,8 @@ public class RegisterFrame extends javax.swing.JDialog {
 
     private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
         // TODO add your handling code here:
-        String username = txtUsername.getText().trim();
-        String password = new String(txtPassword.getPassword());
+        String username = txtUsername1.getText().trim();
+        String password = new String(txtPassword1.getPassword());
         String fullName = txtFullName.getText().trim();
         String email = txtEmail.getText().trim();
 
@@ -282,7 +272,7 @@ public class RegisterFrame extends javax.swing.JDialog {
     private javax.swing.JTextField txtEmail;
     private javax.swing.JTextField txtFullName;
     private javax.swing.JTextField txtPassword;
-    private javax.swing.JTextField txtPassword1;
+    private javax.swing.JPasswordField txtPassword1;
     private javax.swing.JTextField txtUsername;
     private javax.swing.JTextField txtUsername1;
     // End of variables declaration//GEN-END:variables

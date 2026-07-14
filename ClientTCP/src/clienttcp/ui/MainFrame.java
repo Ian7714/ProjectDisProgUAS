@@ -19,8 +19,11 @@ public class MainFrame extends javax.swing.JFrame {
     User currentUser;
     TCPClient tcpClient = new clienttcp.net.TCPClient();
 
-    public MainFrame(User user) {
+    public MainFrame() {
         initComponents();
+    }
+
+    public MainFrame(User user) {
         this(); // panggil constructor kosong bawaan (manggil initComponents())
         this.currentUser = user;
 
