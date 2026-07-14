@@ -4,10 +4,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * "Specific Model" read-only untuk laporan riwayat reservasi.
- * Menggabungkan tabel reservations + restaurant_tables + food_orders.
- */
 public class ReservationHistory extends MyModel {
 
     private int reservationId;
@@ -18,10 +14,13 @@ public class ReservationHistory extends MyModel {
     private String status;
     private double totalOrderAmount;
 
-    public ReservationHistory() {}
+    public ReservationHistory() {
+        super();
+    }
 
     public ReservationHistory(int reservationId, String tableNumber, String reservationDate,
                                String reservationTime, int guestCount, String status, double totalOrderAmount) {
+        super();
         this.reservationId = reservationId;
         this.tableNumber = tableNumber;
         this.reservationDate = reservationDate;
@@ -49,21 +48,27 @@ public class ReservationHistory extends MyModel {
     // ================= ViewListData (per user) =================
     public List<ReservationHistory> viewListDataByUser(int userId) {
         List<ReservationHistory> list = new ArrayList<>();
-        String sql = "SELECT r.id, t.table_number, r.reservation_date, r.reservation_time, " +
-                "r.guest_count, r.status, COALESCE(fo.total_amount,0) AS total " +
-                "FROM reservations r " +
-                "JOIN restaurant_tables t ON r.table_id = t.id " +
-                "LEFT JOIN food_orders fo ON fo.reservation_id = r.id " +
-                "WHERE r.user_id = ? " +
-                "ORDER BY r.reservation_date DESC, r.reservation_time DESC";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
+        try {
+            if (!connect.isClosed()) {
+                PreparedStatement sql = connect.prepareStatement(
+                        "SELECT r.id, t.table_number, r.reservation_date, r.reservation_time, " +
+                        "r.guest_count, r.status, COALESCE(fo.total_amount,0) AS total " +
+                        "FROM reservations r " +
+                        "JOIN restaurant_tables t ON r.table_id = t.id " +
+                        "LEFT JOIN food_orders fo ON fo.reservation_id = r.id " +
+                        "WHERE r.user_id = ? " +
+                        "ORDER BY r.reservation_date DESC, r.reservation_time DESC"
+                );
+                sql.setInt(1, userId);
+                ResultSet rs = sql.executeQuery();
                 while (rs.next()) list.add(mapRow(rs));
+                rs.close();
+                sql.close();
+            } else {
+                System.out.println("Koneksi Hilang");
             }
-        } catch (SQLException e) {
-            System.out.println("viewListDataByUser error: " + e.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error di viewListDataByUser: " + ex);
         }
         return list;
     }
@@ -71,22 +76,28 @@ public class ReservationHistory extends MyModel {
     // ================= ViewListData (rentang tanggal, untuk admin) =================
     public List<ReservationHistory> viewListDataByPeriod(String startDate, String endDate) {
         List<ReservationHistory> list = new ArrayList<>();
-        String sql = "SELECT r.id, t.table_number, r.reservation_date, r.reservation_time, " +
-                "r.guest_count, r.status, COALESCE(fo.total_amount,0) AS total " +
-                "FROM reservations r " +
-                "JOIN restaurant_tables t ON r.table_id = t.id " +
-                "LEFT JOIN food_orders fo ON fo.reservation_id = r.id " +
-                "WHERE r.reservation_date BETWEEN ? AND ? " +
-                "ORDER BY r.reservation_date DESC, r.reservation_time DESC";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, startDate);
-            ps.setString(2, endDate);
-            try (ResultSet rs = ps.executeQuery()) {
+        try {
+            if (!connect.isClosed()) {
+                PreparedStatement sql = connect.prepareStatement(
+                        "SELECT r.id, t.table_number, r.reservation_date, r.reservation_time, " +
+                        "r.guest_count, r.status, COALESCE(fo.total_amount,0) AS total " +
+                        "FROM reservations r " +
+                        "JOIN restaurant_tables t ON r.table_id = t.id " +
+                        "LEFT JOIN food_orders fo ON fo.reservation_id = r.id " +
+                        "WHERE r.reservation_date BETWEEN ? AND ? " +
+                        "ORDER BY r.reservation_date DESC, r.reservation_time DESC"
+                );
+                sql.setString(1, startDate);
+                sql.setString(2, endDate);
+                ResultSet rs = sql.executeQuery();
                 while (rs.next()) list.add(mapRow(rs));
+                rs.close();
+                sql.close();
+            } else {
+                System.out.println("Koneksi Hilang");
             }
-        } catch (SQLException e) {
-            System.out.println("viewListDataByPeriod error: " + e.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error di viewListDataByPeriod: " + ex);
         }
         return list;
     }

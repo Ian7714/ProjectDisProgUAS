@@ -4,7 +4,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/** "Specific Model" untuk tabel menu_items. */
 public class MenuItem extends MyModel {
 
     private int id;
@@ -14,10 +13,13 @@ public class MenuItem extends MyModel {
     private String description;
     private boolean available;
 
-    public MenuItem() {}
+    public MenuItem() {
+        super();
+    }
 
     // Constructor untuk TAMBAH menu baru (belum ada id)
     public MenuItem(String name, String category, double price, String description) {
+        super();
         this.name = name;
         this.category = category;
         this.price = price;
@@ -27,6 +29,7 @@ public class MenuItem extends MyModel {
 
     // Constructor LENGKAP (dari database)
     public MenuItem(int id, String name, String category, double price, String description, boolean available) {
+        super();
         this.id = id;
         this.name = name;
         this.category = category;
@@ -51,48 +54,69 @@ public class MenuItem extends MyModel {
 
     // ================= InsertData =================
     public boolean insertData() {
-        String sql = "INSERT INTO menu_items (name, category, price, description, available) VALUES (?, ?, ?, ?, TRUE)";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, name);
-            ps.setString(2, category);
-            ps.setDouble(3, price);
-            ps.setString(4, description);
-            ps.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            System.out.println("insertData MenuItem error: " + e.getMessage());
+        try {
+            if (!connect.isClosed()) {
+                PreparedStatement sql = connect.prepareStatement(
+                        "INSERT INTO menu_items (name, category, price, description, available) VALUES (?, ?, ?, ?, TRUE)"
+                );
+                sql.setString(1, name);
+                sql.setString(2, category);
+                sql.setDouble(3, price);
+                sql.setString(4, description);
+                sql.executeUpdate();
+                sql.close();
+                return true;
+            } else {
+                System.out.println("Koneksi Hilang");
+                return false;
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error di insert: " + ex);
             return false;
         }
     }
 
     // ================= UpdateData =================
     public boolean updateData() {
-        String sql = "UPDATE menu_items SET name=?, category=?, price=?, description=?, available=? WHERE id=?";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, name);
-            ps.setString(2, category);
-            ps.setDouble(3, price);
-            ps.setString(4, description);
-            ps.setBoolean(5, available);
-            ps.setInt(6, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("updateData MenuItem error: " + e.getMessage());
+        try {
+            if (!connect.isClosed()) {
+                PreparedStatement sql = connect.prepareStatement(
+                        "UPDATE menu_items SET name=?, category=?, price=?, description=?, available=? WHERE id=?"
+                );
+                sql.setString(1, name);
+                sql.setString(2, category);
+                sql.setDouble(3, price);
+                sql.setString(4, description);
+                sql.setBoolean(5, available);
+                sql.setInt(6, id);
+                int rows = sql.executeUpdate();
+                sql.close();
+                return rows > 0;
+            } else {
+                System.out.println("Koneksi Hilang");
+                return false;
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error di update: " + ex);
             return false;
         }
     }
 
     // ================= DeleteData =================
     public boolean deleteData() {
-        String sql = "DELETE FROM menu_items WHERE id=?";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("deleteData MenuItem error: " + e.getMessage());
+        try {
+            if (!connect.isClosed()) {
+                PreparedStatement sql = connect.prepareStatement("DELETE FROM menu_items WHERE id=?");
+                sql.setInt(1, id);
+                int rows = sql.executeUpdate();
+                sql.close();
+                return rows > 0;
+            } else {
+                System.out.println("Koneksi Hilang");
+                return false;
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error di delete: " + ex);
             return false;
         }
     }
@@ -100,13 +124,19 @@ public class MenuItem extends MyModel {
     // ================= ViewListData =================
     public List<MenuItem> viewListData() {
         List<MenuItem> list = new ArrayList<>();
-        String sql = "SELECT id, name, category, price, description, available FROM menu_items ORDER BY category, name";
-        try (Connection con = getConnection();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) list.add(mapRow(rs));
-        } catch (SQLException e) {
-            System.out.println("viewListData MenuItem error: " + e.getMessage());
+        try {
+            if (!connect.isClosed()) {
+                stat = connect.createStatement();
+                ResultSet rs = stat.executeQuery(
+                        "SELECT id, name, category, price, description, available FROM menu_items ORDER BY category, name");
+                while (rs.next()) list.add(mapRow(rs));
+                rs.close();
+                stat.close();
+            } else {
+                System.out.println("Koneksi Hilang");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error di viewListData: " + ex);
         }
         return list;
     }
@@ -114,18 +144,24 @@ public class MenuItem extends MyModel {
     // Cari menu berdasarkan nama/kategori (dipakai fitur search)
     public List<MenuItem> viewListDataByKeyword(String keyword) {
         List<MenuItem> list = new ArrayList<>();
-        String sql = "SELECT id, name, category, price, description, available FROM menu_items " +
-                "WHERE name LIKE ? OR category LIKE ? ORDER BY name";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            String kw = "%" + keyword + "%";
-            ps.setString(1, kw);
-            ps.setString(2, kw);
-            try (ResultSet rs = ps.executeQuery()) {
+        try {
+            if (!connect.isClosed()) {
+                PreparedStatement sql = connect.prepareStatement(
+                        "SELECT id, name, category, price, description, available FROM menu_items " +
+                        "WHERE name LIKE ? OR category LIKE ? ORDER BY name"
+                );
+                String kw = "%" + keyword + "%";
+                sql.setString(1, kw);
+                sql.setString(2, kw);
+                ResultSet rs = sql.executeQuery();
                 while (rs.next()) list.add(mapRow(rs));
+                rs.close();
+                sql.close();
+            } else {
+                System.out.println("Koneksi Hilang");
             }
-        } catch (SQLException e) {
-            System.out.println("viewListDataByKeyword error: " + e.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error di viewListDataByKeyword: " + ex);
         }
         return list;
     }

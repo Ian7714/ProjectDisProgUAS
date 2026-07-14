@@ -5,11 +5,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * "Specific Model" untuk tabel users. Fokus ke data & proses bisnis
- * (login, register, dst) - persis pola yang diajarkan (Model = data + query,
- * WebService cuma jadi Controller yang manggil method di sini).
- */
 public class User extends MyModel {
 
     private int id;
@@ -19,11 +14,13 @@ public class User extends MyModel {
     private String email;
     private String role;
 
-    // Constructor kosong (wajib ada, dipakai JAX-WS)
-    public User() {}
+    public User() {
+        super(); // buka connect
+    }
 
     // Constructor untuk DAFTAR AKUN BARU (belum ada id, role default CUSTOMER)
     public User(String username, String password, String fullName, String email) {
+        super();
         this.username = username;
         this.password = password;
         this.fullName = fullName;
@@ -31,8 +28,9 @@ public class User extends MyModel {
         this.role = "CUSTOMER";
     }
 
-    // Constructor LENGKAP (biasanya dipakai waktu ambil data dari database)
+    // Constructor LENGKAP (dari database)
     public User(int id, String username, String password, String fullName, String email, String role) {
+        super();
         this.id = id;
         this.username = username;
         this.password = password;
@@ -58,59 +56,77 @@ public class User extends MyModel {
     // ================= InsertData =================
     // Dipakai waktu Register akun baru
     public boolean insertData() {
-        String sql = "INSERT INTO users (username, password, full_name, email, role) VALUES (?, ?, ?, ?, ?)";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, username);
-            ps.setString(2, hashPassword(password));
-            ps.setString(3, fullName);
-            ps.setString(4, email);
-            ps.setString(5, role);
-            ps.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            System.out.println("insertData User error: " + e.getMessage());
+        try {
+            if (!connect.isClosed()) {
+                PreparedStatement sql = connect.prepareStatement(
+                        "INSERT INTO users (username, password, full_name, email, role) VALUES (?, ?, ?, ?, ?)"
+                );
+                sql.setString(1, username);
+                sql.setString(2, hashPassword(password));
+                sql.setString(3, fullName);
+                sql.setString(4, email);
+                sql.setString(5, role);
+                sql.executeUpdate();
+                sql.close();
+                return true;
+            } else {
+                System.out.println("Koneksi Hilang");
+                return false;
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error di insert: " + ex);
             return false;
         }
     }
 
     // ================= UpdateData =================
     public boolean updateData() {
-        String sql = "UPDATE users SET full_name=?, email=? WHERE id=?";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, fullName);
-            ps.setString(2, email);
-            ps.setInt(3, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("updateData User error: " + e.getMessage());
+        try {
+            if (!connect.isClosed()) {
+                PreparedStatement sql = connect.prepareStatement(
+                        "UPDATE users SET full_name=?, email=? WHERE id=?"
+                );
+                sql.setString(1, fullName);
+                sql.setString(2, email);
+                sql.setInt(3, id);
+                int rows = sql.executeUpdate();
+                sql.close();
+                return rows > 0;
+            } else {
+                System.out.println("Koneksi Hilang");
+                return false;
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error di update: " + ex);
             return false;
         }
     }
 
     // ================= ViewListData =================
-    // Ambil semua data user, dibungkus jadi List<User>
     public List<User> viewListData() {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT id, username, password, full_name, email, role FROM users";
-        try (Connection con = getConnection();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) {
-                User u = new User(rs.getInt("id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("full_name"), rs.getString("email"), rs.getString("role"));
-                list.add(u);
+        try {
+            if (!connect.isClosed()) {
+                stat = connect.createStatement();
+                ResultSet rs = stat.executeQuery(
+                        "SELECT id, username, password, full_name, email, role FROM users");
+                while (rs.next()) {
+                    User u = new User(rs.getInt("id"), rs.getString("username"), rs.getString("password"),
+                            rs.getString("full_name"), rs.getString("email"), rs.getString("role"));
+                    list.add(u);
+                }
+                rs.close();
+                stat.close();
+            } else {
+                System.out.println("Koneksi Hilang");
             }
-        } catch (SQLException e) {
-            System.out.println("viewListData User error: " + e.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error di viewListData: " + ex);
         }
         return list;
     }
 
     // ================= ViewListDataString =================
-    // Sama seperti viewListData, tapi hasilnya dijadiin kumpulan String
-    // (format: id;username;fullName;email;role)
     public List<String> viewListDataString() {
         List<String> result = new ArrayList<>();
         for (User u : viewListData()) {
@@ -121,38 +137,54 @@ public class User extends MyModel {
     }
 
     // ================= CheckLogin =================
-    // TRUE kalau username & password ditemukan (cocok)
     public boolean checkLogin(String usernameInput, String passwordInput) {
-        String sql = "SELECT id FROM users WHERE username=? AND password=?";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, usernameInput);
-            ps.setString(2, hashPassword(passwordInput));
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+        try {
+            if (!connect.isClosed()) {
+                PreparedStatement sql = connect.prepareStatement(
+                        "SELECT id FROM users WHERE username=? AND password=?"
+                );
+                sql.setString(1, usernameInput);
+                sql.setString(2, hashPassword(passwordInput));
+                ResultSet rs = sql.executeQuery();
+                boolean found = rs.next();
+                rs.close();
+                sql.close();
+                return found;
+            } else {
+                System.out.println("Koneksi Hilang");
+                return false;
             }
-        } catch (SQLException e) {
-            System.out.println("checkLogin User error: " + e.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error di checkLogin: " + ex);
             return false;
         }
     }
 
     // Ambil 1 data user lengkap berdasarkan username (dipanggil setelah checkLogin sukses)
     public User getByUsername(String usernameInput) {
-        String sql = "SELECT id, username, password, full_name, email, role FROM users WHERE username=?";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, usernameInput);
-            try (ResultSet rs = ps.executeQuery()) {
+        try {
+            if (!connect.isClosed()) {
+                PreparedStatement sql = connect.prepareStatement(
+                        "SELECT id, username, password, full_name, email, role FROM users WHERE username=?"
+                );
+                sql.setString(1, usernameInput);
+                ResultSet rs = sql.executeQuery();
+                User result = null;
                 if (rs.next()) {
-                    return new User(rs.getInt("id"), rs.getString("username"), rs.getString("password"),
+                    result = new User(rs.getInt("id"), rs.getString("username"), rs.getString("password"),
                             rs.getString("full_name"), rs.getString("email"), rs.getString("role"));
                 }
+                rs.close();
+                sql.close();
+                return result;
+            } else {
+                System.out.println("Koneksi Hilang");
+                return null;
             }
-        } catch (SQLException e) {
-            System.out.println("getByUsername error: " + e.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error di getByUsername: " + ex);
+            return null;
         }
-        return null;
     }
 
     // Hash password sederhana (SHA-256) supaya password tidak disimpan polos di database

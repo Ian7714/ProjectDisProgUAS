@@ -3,11 +3,13 @@ package com.uas.service.model;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * MyModel = class induk (template) untuk semua model.
- * Isinya cuma bertanggung jawab bikin Connection ke database.
- * Semua "Specific Model" (User, MenuItem, dll) WAJIB extends class ini.
+ * Connection dibuka SEKALI waktu object Model dibikin (di constructor),
+ * lalu dipakai bareng-bareng oleh semua method di Model turunannya.
+ * Setiap method WAJIB cek "if (!connect.isClosed())" dulu sebelum query.
  */
 public class MyModel {
 
@@ -19,6 +21,9 @@ public class MyModel {
     protected static final String DB_USER = "root";
     protected static final String DB_PASSWORD = ""; // isi sesuai password MySQL kamu
 
+    protected Connection connect;
+    protected Statement stat;
+
     static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -27,7 +32,11 @@ public class MyModel {
         }
     }
 
-    public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, DB_USER, DB_PASSWORD);
+    public MyModel() {
+        try {
+            connect = DriverManager.getConnection(URL, DB_USER, DB_PASSWORD);
+        } catch (SQLException ex) {
+            System.out.println("Error di koneksi: " + ex);
+        }
     }
 }
