@@ -1,29 +1,9 @@
 package servertcp;
 
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO yang menangani proses reservasi meja.
- *
- * PENANGANAN CONCURRENCY / DOUBLE BOOKING:
- * 1. Setiap request reservasi dijalankan di dalam satu transaksi database
- *    (autoCommit = false) dengan isolation level SERIALIZABLE.
- * 2. TableDAO.findAvailableTable() menggunakan "SELECT ... FOR UPDATE"
- *    sehingga baris meja yang sedang dicek terkunci (row-lock) sampai
- *    transaksi selesai (commit/rollback). Thread lain yang mencoba
- *    memesan meja yang sama pada saat bersamaan akan menunggu (blocked)
- *    hingga transaksi pertama selesai.
- * 3. Kolom UNIQUE (table_id, reservation_date, reservation_time) pada
- *    tabel reservations menjadi lapisan pengaman kedua: jika karena
- *    suatu hal dua transaksi tetap lolos, database akan menolak insert
- *    kedua dengan SQLIntegrityConstraintViolationException.
- * 4. Method ini juga disinkronisasi dengan 'synchronized' di level
- *    aplikasi (lihat ClientHandler) untuk mengurangi kontensi database
- *    saat beban tinggi.
- */
 public class ReservationDAO {
 
     private final TableDAO tableDAO = new TableDAO();
@@ -46,8 +26,8 @@ public class ReservationDAO {
             }
 
             // 2. Insert reservasi
-            String sql = "INSERT INTO reservations (user_id, table_id, reservation_date, " +
-                    "reservation_time, guest_count, status) VALUES (?, ?, ?, ?, ?, 'CONFIRMED')";
+            String sql = "INSERT INTO reservations (user_id, table_id, reservation_date, "
+                    + "reservation_time, guest_count, status) VALUES (?, ?, ?, ?, ?, 'CONFIRMED')";
             int reservationId;
             try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setInt(1, userId);
@@ -75,7 +55,9 @@ public class ReservationDAO {
                     guestCount, "CONFIRMED");
 
         } catch (SQLException e) {
-            if (con != null) con.rollback();
+            if (con != null) {
+                con.rollback();
+            }
             throw e;
         } finally {
             if (con != null) {
@@ -96,7 +78,9 @@ public class ReservationDAO {
                     "SELECT table_id FROM reservations WHERE id=? FOR UPDATE")) {
                 ps.setInt(1, reservationId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (!rs.next()) throw new SQLException("Reservasi tidak ditemukan");
+                    if (!rs.next()) {
+                        throw new SQLException("Reservasi tidak ditemukan");
+                    }
                     tableId = rs.getInt("table_id");
                 }
             }
@@ -115,7 +99,9 @@ public class ReservationDAO {
 
             con.commit();
         } catch (SQLException e) {
-            if (con != null) con.rollback();
+            if (con != null) {
+                con.rollback();
+            }
             throw e;
         } finally {
             if (con != null) {
@@ -127,10 +113,9 @@ public class ReservationDAO {
 
     public List<Reservation> getReservationsByUser(int userId) throws SQLException {
         List<Reservation> list = new ArrayList<>();
-        String sql = "SELECT id, user_id, table_id, reservation_date, reservation_time, " +
-                "guest_count, status FROM reservations WHERE user_id = ? ORDER BY reservation_date DESC, reservation_time DESC";
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "SELECT id, user_id, table_id, reservation_date, reservation_time, "
+                + "guest_count, status FROM reservations WHERE user_id = ? ORDER BY reservation_date DESC, reservation_time DESC";
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {

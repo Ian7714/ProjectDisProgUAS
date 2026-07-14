@@ -8,12 +8,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Sama seperti contoh di materi Week 13: HandleSocket punya reference ke
- * FormServer (parent) supaya bisa nampilin log ke jendela server.
- * Bedanya, di sini "chat" diganti jadi command reservasi/order yang
- * diproses lewat TableDAO / ReservationDAO / OrderDAO.
- */
 public class HandleSocket extends Thread {
 
     FormServer parent;
@@ -25,9 +19,6 @@ public class HandleSocket extends Thread {
     ReservationDAO reservationDAO = new ReservationDAO();
     OrderDAO orderDAO = new OrderDAO();
 
-    // Lock khusus supaya 2 client TIDAK BISA reservasi meja yang sama di
-    // waktu bersamaan (mencegah double booking). 'static' -> dipakai bareng
-    // semua HandleSocket / semua thread client.
     private static final Object RESERVATION_LOCK = new Object();
 
     public HandleSocket(FormServer _parent, Socket _client) {
@@ -57,8 +48,9 @@ public class HandleSocket extends Thread {
         while (true) {
             try {
                 String msg = in.readLine();
-                if (msg == null) break; // client putus koneksi
-
+                if (msg == null) {
+                    break; // client putus koneksi
+                }
                 parent.log(">> Diterima: " + msg);
                 String response = handleCommand(msg);
                 sendReply(response);
@@ -73,8 +65,6 @@ public class HandleSocket extends Thread {
         parent.log("[-] Client terputus: " + client.getInetAddress());
     }
 
-    // Semua command dari Client TCP diproses di sini.
-    // Format: COMMAND|param1|param2|...
     private String handleCommand(String request) {
         String[] parts = request.split("\\|", -1);
         String command = parts[0];
@@ -120,7 +110,9 @@ public class HandleSocket extends Thread {
     private String listTables() throws java.sql.SQLException {
         List<RestaurantTable> tables = tableDAO.getAllTables();
         StringBuilder sb = new StringBuilder("OK");
-        for (RestaurantTable t : tables) sb.append("|").append(t.toString());
+        for (RestaurantTable t : tables) {
+            sb.append("|").append(t.toString());
+        }
         return sb.toString();
     }
 
@@ -147,7 +139,9 @@ public class HandleSocket extends Thread {
     private String listMyReservations(int userId) throws java.sql.SQLException {
         List<Reservation> list = reservationDAO.getReservationsByUser(userId);
         StringBuilder sb = new StringBuilder("OK");
-        for (Reservation r : list) sb.append("|").append(r.toString());
+        for (Reservation r : list) {
+            sb.append("|").append(r.toString());
+        }
         return sb.toString();
     }
 

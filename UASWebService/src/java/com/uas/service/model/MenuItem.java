@@ -39,18 +39,53 @@ public class MenuItem extends MyModel {
     }
 
     // Getter & Setter
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-    public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public boolean isAvailable() { return available; }
-    public void setAvailable(boolean available) { this.available = available; }
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
 
     // ================= InsertData =================
     public boolean insertData() {
@@ -129,7 +164,9 @@ public class MenuItem extends MyModel {
                 stat = connect.createStatement();
                 ResultSet rs = stat.executeQuery(
                         "SELECT id, name, category, price, description, available FROM menu_items ORDER BY category, name");
-                while (rs.next()) list.add(mapRow(rs));
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
                 rs.close();
                 stat.close();
             } else {
@@ -147,14 +184,16 @@ public class MenuItem extends MyModel {
         try {
             if (!connect.isClosed()) {
                 PreparedStatement sql = connect.prepareStatement(
-                        "SELECT id, name, category, price, description, available FROM menu_items " +
-                        "WHERE name LIKE ? OR category LIKE ? ORDER BY name"
+                        "SELECT id, name, category, price, description, available FROM menu_items "
+                        + "WHERE name LIKE ? OR category LIKE ? ORDER BY name"
                 );
                 String kw = "%" + keyword + "%";
                 sql.setString(1, kw);
                 sql.setString(2, kw);
                 ResultSet rs = sql.executeQuery();
-                while (rs.next()) list.add(mapRow(rs));
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
                 rs.close();
                 sql.close();
             } else {

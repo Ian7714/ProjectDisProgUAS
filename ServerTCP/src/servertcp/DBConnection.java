@@ -4,10 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-/**
- * Kelas utilitas untuk membuka koneksi ke database MySQL.
- * Sesuaikan HOST, PORT, DB_NAME, USER, dan PASSWORD dengan konfigurasi lokal Anda.
- */
 public class DBConnection {
 
     private static final String HOST = "localhost";

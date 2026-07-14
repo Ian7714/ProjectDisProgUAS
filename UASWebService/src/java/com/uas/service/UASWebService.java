@@ -9,28 +9,18 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.util.List;
 
-/**
- * UASWebService = CONTROLLER.
- * Sesuai pola yang diajarkan: WebService TIDAK berisi query SQL sama sekali.
- * Dia cuma manggil method yang sudah disiapkan di Model (User, MenuItem,
- * ReservationHistory) lalu mengembalikan hasilnya ke Client.
- */
 @WebService(serviceName = "UASWebService")
 public class UASWebService {
 
-    // ============================================================
-    // Method contoh bawaan NetBeans - dibiarkan tetap ada.
-    // ============================================================
     @WebMethod(operationName = "hello")
     public String hello(@WebParam(name = "name") String name) {
         return "Hello " + name + " !";
     }
 
     // ================= USER MANAGEMENT =================
-
     @WebMethod(operationName = "login")
     public User login(@WebParam(name = "username") String username,
-                       @WebParam(name = "password") String password) {
+            @WebParam(name = "password") String password) {
         User model = new User();
         if (model.checkLogin(username, password)) {
             return model.getByUsername(username);
@@ -40,9 +30,9 @@ public class UASWebService {
 
     @WebMethod(operationName = "registerUser")
     public String registerUser(@WebParam(name = "username") String username,
-                                @WebParam(name = "password") String password,
-                                @WebParam(name = "fullName") String fullName,
-                                @WebParam(name = "email") String email) {
+            @WebParam(name = "password") String password,
+            @WebParam(name = "fullName") String fullName,
+            @WebParam(name = "email") String email) {
         User model = new User(username, password, fullName, email);
         boolean ok = model.insertData();
         return ok ? "OK" : "ERR|Registrasi gagal, username/email mungkin sudah dipakai";
@@ -50,8 +40,8 @@ public class UASWebService {
 
     @WebMethod(operationName = "updateProfile")
     public String updateProfile(@WebParam(name = "userId") int userId,
-                                 @WebParam(name = "fullName") String fullName,
-                                 @WebParam(name = "email") String email) {
+            @WebParam(name = "fullName") String fullName,
+            @WebParam(name = "email") String email) {
         User model = new User();
         model.setId(userId);
         model.setFullName(fullName);
@@ -61,7 +51,6 @@ public class UASWebService {
     }
 
     // ================= MENU MANAGEMENT =================
-
     @WebMethod(operationName = "getAllMenu")
     public List<MenuItem> getAllMenu() {
         return new MenuItem().viewListData();
@@ -74,9 +63,9 @@ public class UASWebService {
 
     @WebMethod(operationName = "addMenu")
     public String addMenu(@WebParam(name = "name") String name,
-                           @WebParam(name = "category") String category,
-                           @WebParam(name = "price") double price,
-                           @WebParam(name = "description") String description) {
+            @WebParam(name = "category") String category,
+            @WebParam(name = "price") double price,
+            @WebParam(name = "description") String description) {
         MenuItem model = new MenuItem(name, category, price, description);
         boolean ok = model.insertData();
         return ok ? "OK" : "ERR|Gagal menambah menu";
@@ -84,11 +73,11 @@ public class UASWebService {
 
     @WebMethod(operationName = "updateMenu")
     public String updateMenu(@WebParam(name = "id") int id,
-                              @WebParam(name = "name") String name,
-                              @WebParam(name = "category") String category,
-                              @WebParam(name = "price") double price,
-                              @WebParam(name = "description") String description,
-                              @WebParam(name = "available") boolean available) {
+            @WebParam(name = "name") String name,
+            @WebParam(name = "category") String category,
+            @WebParam(name = "price") double price,
+            @WebParam(name = "description") String description,
+            @WebParam(name = "available") boolean available) {
         MenuItem model = new MenuItem(id, name, category, price, description, available);
         boolean ok = model.updateData();
         return ok ? "OK" : "ERR|Menu tidak ditemukan";
@@ -103,7 +92,6 @@ public class UASWebService {
     }
 
     // ================= RESERVATION HISTORY =================
-
     @WebMethod(operationName = "getHistoryByUser")
     public List<ReservationHistory> getHistoryByUser(@WebParam(name = "userId") int userId) {
         return new ReservationHistory().viewListDataByUser(userId);
@@ -111,7 +99,7 @@ public class UASWebService {
 
     @WebMethod(operationName = "getHistoryByPeriod")
     public List<ReservationHistory> getHistoryByPeriod(@WebParam(name = "startDate") String startDate,
-                                                          @WebParam(name = "endDate") String endDate) {
+            @WebParam(name = "endDate") String endDate) {
         return new ReservationHistory().viewListDataByPeriod(startDate, endDate);
     }
 }

@@ -5,12 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/**
- * MyModel = class induk (template) untuk semua model.
- * Connection dibuka SEKALI waktu object Model dibikin (di constructor),
- * lalu dipakai bareng-bareng oleh semua method di Model turunannya.
- * Setiap method WAJIB cek "if (!connect.isClosed())" dulu sebelum query.
- */
 public class MyModel {
 
     protected static final String HOST = "localhost";

@@ -1,16 +1,11 @@
 package servertcp;
 
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDAO {
 
-    /**
-     * Membuat pesanan makanan untuk sebuah reservasi.
-     * items: daftar pasangan menuId:qty
-     */
     public FoodOrder createOrder(int reservationId, List<int[]> items /* [menuId, qty] */) throws SQLException {
         Connection con = null;
         try {
@@ -26,7 +21,9 @@ public class OrderDAO {
                 for (int[] item : items) {
                     psPrice.setInt(1, item[0]);
                     try (ResultSet rs = psPrice.executeQuery()) {
-                        if (!rs.next()) throw new SQLException("Menu id " + item[0] + " tidak ditemukan");
+                        if (!rs.next()) {
+                            throw new SQLException("Menu id " + item[0] + " tidak ditemukan");
+                        }
                         double price = rs.getDouble("price");
                         double subtotal = price * item[1];
                         total += subtotal;
@@ -71,7 +68,9 @@ public class OrderDAO {
             return order;
 
         } catch (SQLException e) {
-            if (con != null) con.rollback();
+            if (con != null) {
+                con.rollback();
+            }
             throw e;
         } finally {
             if (con != null) {
@@ -82,23 +81,22 @@ public class OrderDAO {
     }
 
     public void updateStatus(int orderId, String status) throws SQLException {
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     "UPDATE food_orders SET status=? WHERE id=?")) {
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(
+                "UPDATE food_orders SET status=? WHERE id=?")) {
             ps.setString(1, status);
             ps.setInt(2, orderId);
             int rows = ps.executeUpdate();
-            if (rows == 0) throw new SQLException("Order id " + orderId + " tidak ditemukan");
+            if (rows == 0) {
+                throw new SQLException("Order id " + orderId + " tidak ditemukan");
+            }
         }
     }
 
     public List<FoodOrder> getAllActiveOrders() throws SQLException {
         List<FoodOrder> list = new ArrayList<>();
-        String sql = "SELECT id, reservation_id, status, total_amount FROM food_orders " +
-                "WHERE status != 'SERVED' ORDER BY created_at ASC";
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        String sql = "SELECT id, reservation_id, status, total_amount FROM food_orders "
+                + "WHERE status != 'SERVED' ORDER BY created_at ASC";
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 FoodOrder o = new FoodOrder();
                 o.setId(rs.getInt("id"));
